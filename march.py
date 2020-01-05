@@ -1,6 +1,8 @@
-from typing import Tuple
+from typing import Tuple, List
 
 import jax.numpy as np
+import matplotlib.pyplot as plt
+import numpy as onp
 
 from objects import Thing, Plane, Sphere
 
@@ -14,9 +16,29 @@ class Camera:
     ):
         self.pinhole = pinhole
         self.sensor = sensor
-        self.left = left / np.linalg.norm(right)
-        up = np.cross(sensor - pinhole, right)
+        self.left = left / np.linalg.norm(left)
+        up = np.cross(sensor - pinhole, left)
         self.up = up / np.linalg.norm(up)
+        self.resolution = resolution
+
+    def image(self, world: List[Thing]):
+        image = onp.zeros(self.resolution)
+        for i, x in enumerate(np.linspace(-1, 1, self.resolution[0])):
+            for j, y in enumerate(np.linspace(-1, 1, self.resolution[1])):
+                direction = self.sensor + x * self.left + y * self.up - self.pinhole
+                direction /= np.linalg.norm(direction)
+                ray = Ray(
+                    self.pinhole,
+                    direction,
+                )      
+
+                for i in range(10):
+                    distance_to_world = min(thing.distance(ray.position) for thing in world)
+                    ray.march(distance_to_world)
+                
+                image[i, j] = distance_to_world < 0.01
+        return image
+                
 
 
 class Ray:
@@ -25,20 +47,19 @@ class Ray:
         position: np.ndarray,
         direction: np.ndarray
     ):
-        assert np.linalg.norm(direction) == 0
+        assert np.abs(np.linalg.norm(direction) - 1) < 0.01
 
         self.position = position
         self.direction = direction
 
-    def march(distance: float):
-        self.positon += distance * self.direction
+    def march(self, distance: float):
+        self.position += distance * self.direction
         
     
-
-
 def main():
     world = [
-        Sphere(np.array([0, 0, 3]), 1)
+        Sphere(np.array([0, 0, 3]), 1),
+        Plane(np.array([0, -1, 0]), np.array([0, 1, 0]))
     ]
 
     camera = Camera(
@@ -48,8 +69,8 @@ def main():
             (64, 64),
             )
 
-
-
+    plt.imshow(camera.image(world))
+    plt.show()
 
 if __name__ == "__main__":
     main()

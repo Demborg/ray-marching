@@ -12,7 +12,7 @@ class Sphere(Thing):
         self.center = center
         self.radius = radius
 
-    def distance(point: np.ndarray) -> float:
+    def distance(self, point: np.ndarray) -> float:
         return np.linalg.norm(self.center - point) - self.radius
 
 
@@ -23,5 +23,5 @@ class Plane(Thing):
         self.center = center
         self.normal = normal
 
-    def distance(point: np.ndarray) -> float:
+    def distance(self, point: np.ndarray) -> float:
         return (self.center - point).dot(self.normal)
