@@ -59,14 +59,14 @@ class Ray:
 def main():
     world = [
         Sphere(np.array([0, 0, 3]), 1),
-        Plane(np.array([0, -1, 0]), np.array([0, 1, 0]))
+        #Plane(np.array([0, -1, 0]), np.array([0, 1, 0]))
     ]
 
     camera = Camera(
             np.array([0, 0, 0]),
             np.array([0, 0, 1]),
             np.array([1, 0, 0]),
-            (64, 64),
+            (32, 32),
             )
 
     plt.imshow(camera.image(world))
